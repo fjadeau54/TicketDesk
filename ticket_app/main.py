@@ -15,10 +15,15 @@ from ticket_app.db.database import init_db
 from ticket_app.ui.main_window import MainWindow
 from ticket_app.utils.logging_utils import setup_logging
 from ticket_app.config import STYLES_PATH
+from ticket_app.utils.settings_store import load_settings
+from ticket_app.utils import i18n
 
 def main():
     setup_logging()
     init_db()
+
+    settings = load_settings()
+    i18n.set_language(settings.get("language", "fr"))
 
     app = QApplication(sys.argv)
 

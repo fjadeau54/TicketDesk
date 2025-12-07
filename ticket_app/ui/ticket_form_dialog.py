@@ -4,15 +4,21 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import QDate
 from ..services.theme_service import theme_service
+from ..utils.i18n import tr
 
 class TicketFormDialog(QDialog):
     """Dialog to create or edit a ticket."""
 
-    URGENCIES = ["Basse", "Normale", "Haute", "Critique"]
+    URGENCIES = [
+        ("Basse", "urgency.low"),
+        ("Normale", "urgency.normal"),
+        ("Haute", "urgency.high"),
+        ("Critique", "urgency.critical"),
+    ]
 
     def __init__(self, parent=None, ticket=None):
         super().__init__(parent)
-        self.setWindowTitle("Ticket")
+        self.setWindowTitle(tr("ticket.form.title"))
         self._ticket = ticket
         self._build_form()
         if ticket:
@@ -27,18 +33,19 @@ class TicketFormDialog(QDialog):
         self.theme_combo.setEditable(True)
         self._load_themes()
         self.urgency_combo = QComboBox()
-        self.urgency_combo.addItems(self.URGENCIES)
+        for value, key in self.URGENCIES:
+            self.urgency_combo.addItem(tr(key), value)
         self.deadline_edit = QDateEdit()
         self.deadline_edit.setCalendarPopup(True)
         self.deadline_edit.setDisplayFormat("yyyy-MM-dd")
         self.deadline_edit.setDate(QDate.currentDate())
         self.description_edit = QTextEdit()
 
-        form.addRow("Titre", self.title_edit)
-        form.addRow("Thème", self.theme_combo)
-        form.addRow("Urgence", self.urgency_combo)
-        form.addRow("Échéance", self.deadline_edit)
-        form.addRow("Description", self.description_edit)
+        form.addRow(tr("ticket.form.field.title"), self.title_edit)
+        form.addRow(tr("ticket.form.field.theme"), self.theme_combo)
+        form.addRow(tr("ticket.form.field.urgency"), self.urgency_combo)
+        form.addRow(tr("ticket.form.field.deadline"), self.deadline_edit)
+        form.addRow(tr("ticket.form.field.description"), self.description_edit)
 
         layout.addLayout(form)
 
@@ -51,8 +58,10 @@ class TicketFormDialog(QDialog):
         self.title_edit.setText(ticket.title)
         if ticket.theme:
             self.theme_combo.setCurrentText(ticket.theme)
-        if ticket.urgency in self.URGENCIES:
-            self.urgency_combo.setCurrentText(ticket.urgency)
+        if ticket.urgency:
+            idx = self.urgency_combo.findData(ticket.urgency)
+            if idx >= 0:
+                self.urgency_combo.setCurrentIndex(idx)
         if ticket.deadline:
             try:
                 parts = [int(p) for p in ticket.deadline.split("-")]
@@ -70,7 +79,7 @@ class TicketFormDialog(QDialog):
         return {
             "title": self.title_edit.text().strip(),
             "theme": theme_text,
-            "urgency": self.urgency_combo.currentText(),
+            "urgency": self.urgency_combo.currentData(),
             "deadline": self.deadline_edit.date().toString("yyyy-MM-dd"),
             "description": self.description_edit.toPlainText().strip(),
         }

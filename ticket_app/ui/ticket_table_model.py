@@ -2,15 +2,22 @@ from PySide6.QtCore import QAbstractTableModel, Qt, QModelIndex
 from PySide6.QtGui import QColor
 from typing import List
 from ..db.models import Ticket
+from ..utils.i18n import tr
 
 class TicketTableModel(QAbstractTableModel):
-
-    HEADERS = ["ID", "Titre", "Urgence", "Échéance", "Thème", "Archivé"]
 
     def __init__(self, tickets: List[Ticket] | None = None):
         super().__init__()
         self._tickets: List[Ticket] = tickets or []
         self._theme_colors: dict[str, str] = {}
+        self._headers = [
+            "ID",
+            tr("ticket.table.title"),
+            tr("ticket.table.urgency"),
+            tr("ticket.table.deadline"),
+            tr("ticket.table.theme"),
+            tr("ticket.table.archived"),
+        ]
 
     def set_tickets(self, tickets: List[Ticket]):
         self.beginResetModel()
@@ -21,7 +28,7 @@ class TicketTableModel(QAbstractTableModel):
         return len(self._tickets)
 
     def columnCount(self, parent=QModelIndex()) -> int:
-        return len(self.HEADERS)
+        return len(self._headers)
 
     def data(self, index, role=Qt.DisplayRole):
         if not index.isValid():
@@ -42,7 +49,7 @@ class TicketTableModel(QAbstractTableModel):
             elif col == 4:
                 return ticket.theme
             elif col == 5:
-                return "Oui" if ticket.archived else "Non"
+                return tr("yes") if ticket.archived else tr("no")
         elif role == Qt.ForegroundRole and ticket.archived:
             return QColor("red")
         elif col == 4 and role == Qt.BackgroundRole:
@@ -66,7 +73,7 @@ class TicketTableModel(QAbstractTableModel):
         if role != Qt.DisplayRole:
             return None
         if orientation == Qt.Horizontal:
-            return self.HEADERS[section]
+            return self._headers[section]
         return section + 1
 
     def get_ticket_at(self, row: int) -> Ticket:
@@ -78,3 +85,18 @@ class TicketTableModel(QAbstractTableModel):
             top_left = self.index(0, 0)
             bottom_right = self.index(self.rowCount() - 1, self.columnCount() - 1)
             self.dataChanged.emit(top_left, bottom_right, [Qt.BackgroundRole])
+
+    def refresh_headers(self):
+        self._headers = [
+            "ID",
+            tr("ticket.table.title"),
+            tr("ticket.table.urgency"),
+            tr("ticket.table.deadline"),
+            tr("ticket.table.theme"),
+            tr("ticket.table.archived"),
+        ]
+        self.headerDataChanged.emit(Qt.Horizontal, 0, len(self._headers) - 1)
+        if self.rowCount() > 0:
+            top_left = self.index(0, 5)
+            bottom_right = self.index(self.rowCount() - 1, 5)
+            self.dataChanged.emit(top_left, bottom_right, [Qt.DisplayRole])

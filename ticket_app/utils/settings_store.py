@@ -9,7 +9,19 @@ DEFAULT_SETTINGS = {
         "one_day_before": True,
         "day_of": True,
         "overdue": True,
-    }
+    },
+    "language": "fr",
+    "shortcuts": {
+        "palette": "Ctrl+K",
+        "new": "Ctrl+N",
+        "edit": "Ctrl+E",
+        "delete": "Del",
+        "archive": "Ctrl+Shift+A",
+        "refresh": "F5",
+        "focus_search": "Ctrl+F",
+        "settings": "Ctrl+,",
+        "kanban": "Ctrl+B",
+    },
 }
 
 

@@ -7,6 +7,7 @@ from PySide6.QtGui import QColor, QPalette
 
 from ..services.postit_service import postit_service
 from .postit_edit_dialog import PostItEditDialog
+from ..utils.i18n import tr
 
 
 class PostItCard(QFrame):
@@ -63,16 +64,17 @@ class PostItBoard(QWidget):
     def _init_ui(self):
         layout = QVBoxLayout(self)
         header = QHBoxLayout()
-        header.addWidget(QLabel("Post-it (mur filtrable)"))
+        self.header_label = QLabel(tr("postit.wall"))
+        header.addWidget(self.header_label)
         header.addStretch()
         layout.addLayout(header)
 
         filter_row = QHBoxLayout()
         self.search_edit = QLineEdit()
-        self.search_edit.setPlaceholderText("Filtrer par texte ou #tag")
+        self.search_edit.setPlaceholderText(tr("postit.filter.placeholder"))
         self.search_edit.textChanged.connect(self._refresh_wall)
         self.color_filter = QComboBox()
-        self.color_filter.addItem("Toutes les couleurs", None)
+        self.color_filter.addItem(tr("postit.colors.all"), None)
         self.color_filter.currentIndexChanged.connect(self._refresh_wall)
         filter_row.addWidget(self.search_edit)
         filter_row.addWidget(self.color_filter)
@@ -89,18 +91,18 @@ class PostItBoard(QWidget):
         layout.addWidget(self.list_widget)
 
         btn_row = QHBoxLayout()
-        self.btn_new = QPushButton("Nouveau")
-        self.btn_edit = QPushButton("Modifier")
-        self.btn_delete = QPushButton("Supprimer")
-        refresh_btn = QPushButton("Rafraîchir")
+        self.btn_new = QPushButton(tr("postit.new"))
+        self.btn_edit = QPushButton(tr("postit.edit"))
+        self.btn_delete = QPushButton(tr("postit.delete"))
+        self.refresh_btn = QPushButton(tr("postit.refresh"))
         btn_row.addWidget(self.btn_new)
         btn_row.addWidget(self.btn_edit)
         btn_row.addWidget(self.btn_delete)
-        btn_row.addWidget(refresh_btn)
+        btn_row.addWidget(self.refresh_btn)
         btn_row.addStretch()
         layout.addLayout(btn_row)
 
-        refresh_btn.clicked.connect(self._load_postits)
+        self.refresh_btn.clicked.connect(self._load_postits)
         self.btn_new.clicked.connect(self._new_postit)
         self.btn_edit.clicked.connect(self._edit_postit)
         self.btn_delete.clicked.connect(self._delete_postit)
@@ -120,7 +122,7 @@ class PostItBoard(QWidget):
                 colors.append(p.color)
         self.color_filter.blockSignals(True)
         self.color_filter.clear()
-        self.color_filter.addItem("Toutes les couleurs", None)
+        self.color_filter.addItem(tr("postit.colors.all"), None)
         for c in colors:
             self.color_filter.addItem(c, c)
         # restore selection if possible
@@ -173,7 +175,7 @@ class PostItBoard(QWidget):
     def _edit_postit(self):
         postit = self._get_selected()
         if not postit:
-            QMessageBox.information(self, "Info", "Sélectionne un post-it.")
+            QMessageBox.information(self, "Info", tr("postit.select"))
             return
         dlg = PostItEditDialog(self, content=postit.content, tags=postit.tags, color=postit.color)
         if dlg.exec():
@@ -190,7 +192,7 @@ class PostItBoard(QWidget):
     def _delete_postit(self):
         postit = self._get_selected()
         if not postit:
-            QMessageBox.information(self, "Info", "Sélectionne un post-it.")
+            QMessageBox.information(self, "Info", tr("postit.select"))
             return
         postit_service.delete_postit(postit.id)
         self._load_postits()
@@ -205,3 +207,28 @@ class PostItBoard(QWidget):
         hidden_ids = [p.id for p in self._postits if p.id not in visible_ids]
         postit_service.reorder_postits(visible_ids + hidden_ids)
         self._load_postits()
+
+    def retranslate(self):
+        self.header_label.setText(tr("postit.wall"))
+        self.search_edit.setPlaceholderText(tr("postit.filter.placeholder"))
+        current_color = self.color_filter.currentData()
+        self.color_filter.blockSignals(True)
+        self.color_filter.clear()
+        self.color_filter.addItem(tr("postit.colors.all"), None)
+        # rebuild colors from existing postits
+        colors = []
+        for p in self._postits:
+            if p.color and p.color not in colors:
+                colors.append(p.color)
+        for c in colors:
+            self.color_filter.addItem(c, c)
+        if current_color:
+            idx = self.color_filter.findData(current_color)
+            if idx >= 0:
+                self.color_filter.setCurrentIndex(idx)
+        self.color_filter.blockSignals(False)
+        self.btn_new.setText(tr("postit.new"))
+        self.btn_edit.setText(tr("postit.edit"))
+        self.btn_delete.setText(tr("postit.delete"))
+        self.refresh_btn.setText(tr("postit.refresh"))
+        self._refresh_wall()

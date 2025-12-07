@@ -8,12 +8,12 @@ class TicketFilterProxy(QSortFilterProxyModel):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.search_text = ""
-        self.urgency = "Tous"
-        self.deadline_filter = "Tous"
-        self.theme = "Tous"
+        self.urgency = None
+        self.deadline_filter = "all"
+        self.theme = None
 
-    def set_filters(self, search_text: str = "", urgency: str = "Tous",
-                    deadline_filter: str = "Tous", theme: str = "Tous"):
+    def set_filters(self, search_text: str = "", urgency=None,
+                    deadline_filter: str = "all", theme=None):
         self.search_text = search_text.lower().strip()
         self.urgency = urgency
         self.deadline_filter = deadline_filter
@@ -37,17 +37,17 @@ class TicketFilterProxy(QSortFilterProxyModel):
                 return False
 
         # urgency
-        if self.urgency != "Tous":
-            if (ticket.urgency or "").lower() != self.urgency.lower():
+        if self.urgency:
+            if (ticket.urgency or "").lower() != str(self.urgency).lower():
                 return False
 
         # theme
-        if self.theme != "Tous":
+        if self.theme:
             if (ticket.theme or "") != self.theme:
                 return False
 
         # deadline filters
-        if self.deadline_filter != "Tous":
+        if self.deadline_filter != "all":
             if not ticket.deadline:
                 return False
             try:
@@ -55,15 +55,15 @@ class TicketFilterProxy(QSortFilterProxyModel):
             except Exception:
                 return False
             today = date.today()
-            if self.deadline_filter == "Aujourd'hui":
+            if self.deadline_filter == "today":
                 if d != today:
                     return False
-            elif self.deadline_filter == "Cette semaine":
+            elif self.deadline_filter == "week":
                 start = today - timedelta(days=today.weekday())
                 end = start + timedelta(days=6)
                 if not (start <= d <= end):
                     return False
-            elif self.deadline_filter == "En retard":
+            elif self.deadline_filter == "overdue":
                 if d >= today:
                     return False
 
