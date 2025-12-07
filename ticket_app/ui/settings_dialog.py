@@ -11,6 +11,7 @@ from ..utils.i18n import tr, available_languages
 from ..config import DB_PATH, DATA_DIR, LOG_DIR
 from ..db.database import init_db
 from ..utils.settings_store import SETTINGS_PATH
+from ..utils.theme_manager import get_appearance_settings
 
 
 class ThemeEditDialog(QDialog):
@@ -85,6 +86,7 @@ class SettingsDialog(QDialog):
         self._load_alerts()
         self._load_themes()
         self._load_shortcuts()
+        self._load_appearance()
 
     def _init_ui(self):
         layout = QVBoxLayout(self)
@@ -151,6 +153,24 @@ class SettingsDialog(QDialog):
         shortcuts_layout.addLayout(form)
         layout.addWidget(shortcuts_group)
 
+        # Appearance
+        appearance_group = QGroupBox(tr("appearance.title"))
+        appearance_layout = QVBoxLayout(appearance_group)
+        app_form = QFormLayout()
+        self.mode_combo = QComboBox()
+        self.mode_combo.addItem(tr("appearance.mode.light"), "light")
+        self.mode_combo.addItem(tr("appearance.mode.dark"), "dark")
+        self.kanban_bg_edit = QLineEdit()
+        btn_kanban = QPushButton(tr("appearance.pick_color"))
+        btn_kanban.clicked.connect(lambda: self._pick_color(self.kanban_bg_edit))
+        row_kanban = QHBoxLayout()
+        row_kanban.addWidget(self.kanban_bg_edit)
+        row_kanban.addWidget(btn_kanban)
+        app_form.addRow(tr("appearance.mode"), self.mode_combo)
+        app_form.addRow(tr("appearance.kanban_column"), row_kanban)
+        appearance_layout.addLayout(app_form)
+        layout.addWidget(appearance_group)
+
         # Reset data
         reset_group = QGroupBox(tr("settings.reset.title"))
         reset_layout = QVBoxLayout(reset_group)
@@ -187,6 +207,19 @@ class SettingsDialog(QDialog):
         shortcuts = self.settings.get("shortcuts", {})
         for key, edit in self.shortcut_fields.items():
             edit.setText(shortcuts.get(key, ""))
+
+    def _load_appearance(self):
+        appearance = get_appearance_settings(self.settings)
+        mode = appearance.get("mode", "light")
+        idx = self.mode_combo.findData(mode)
+        if idx >= 0:
+            self.mode_combo.setCurrentIndex(idx)
+        self.kanban_bg_edit.setText(appearance.get("kanban_column", ""))
+
+    def _pick_color(self, target_edit: QLineEdit):
+        color = QColorDialog.getColor()
+        if color.isValid():
+            target_edit.setText(color.name())
 
     def _selected_theme(self):
         row = self.theme_list.currentRow()
@@ -241,6 +274,10 @@ class SettingsDialog(QDialog):
             key: edit.text().strip()
             for key, edit in self.shortcut_fields.items()
             if edit.text().strip()
+        }
+        self.settings["appearance"] = {
+            "mode": self.mode_combo.currentData(),
+            "kanban_column": self.kanban_bg_edit.text().strip() or "#f6f6f6",
         }
         save_settings(self.settings)
         super().accept()

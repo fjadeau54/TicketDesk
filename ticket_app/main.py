@@ -14,9 +14,9 @@ from PySide6.QtWidgets import QApplication
 from ticket_app.db.database import init_db
 from ticket_app.ui.main_window import MainWindow
 from ticket_app.utils.logging_utils import setup_logging
-from ticket_app.config import STYLES_PATH
 from ticket_app.utils.settings_store import load_settings
 from ticket_app.utils import i18n
+from ticket_app.utils.theme_manager import apply_theme
 
 def main():
     setup_logging()
@@ -27,10 +27,8 @@ def main():
 
     app = QApplication(sys.argv)
 
-    # feuille de style
-    if STYLES_PATH.exists():
-        with open(STYLES_PATH, "r", encoding="utf-8") as f:
-            app.setStyleSheet(f.read())
+    # feuille de style (thème)
+    apply_theme(app, settings)
 
     window = MainWindow()
     window.show()

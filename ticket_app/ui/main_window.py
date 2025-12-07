@@ -1,7 +1,7 @@
 from PySide6.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QToolBar,
     QTableView, QSplitter, QTabWidget, QMessageBox, QCheckBox,
-    QLineEdit, QComboBox, QHBoxLayout, QLabel, QFileDialog, QAbstractItemView
+    QLineEdit, QComboBox, QHBoxLayout, QLabel, QFileDialog, QAbstractItemView, QApplication
 )
 from PySide6.QtGui import QAction, QShortcut, QKeySequence
 from PySide6.QtCore import Qt, QTimer
@@ -20,6 +20,7 @@ from .kanban_dialog import KanbanDialog
 from ..config import DB_PATH
 from ..utils.i18n import tr
 from ..utils import i18n
+from ..utils.theme_manager import apply_theme
 
 class MainWindow(QMainWindow):
 
@@ -352,6 +353,7 @@ class MainWindow(QMainWindow):
                     self.notes_panel._load_note()
                 if hasattr(self.postit_board, "_load_postits"):
                     self.postit_board._load_postits()
+            apply_theme(QApplication.instance(), dlg.settings)
 
     def _open_command_palette(self):
         actions = [

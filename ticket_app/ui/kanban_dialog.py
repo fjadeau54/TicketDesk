@@ -96,6 +96,7 @@ class KanbanDialog(QDialog):
             display = key if key else tr("kanban.no_tickets")
             list_widget = KanbanList(label=display, key=mode, value=key)
             list_widget.parent_dialog = self
+            list_widget.setObjectName("KanbanColumn")
             self.column_widgets.append(list_widget)
 
             # Column container with title

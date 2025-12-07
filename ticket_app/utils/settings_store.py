@@ -11,6 +11,10 @@ DEFAULT_SETTINGS = {
         "overdue": True,
     },
     "language": "fr",
+    "appearance": {
+        "mode": "light",
+        "kanban_column": "#f6f6f6",
+    },
     "shortcuts": {
         "palette": "Ctrl+K",
         "new": "Ctrl+N",
