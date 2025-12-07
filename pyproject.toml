@@ -1,0 +1,12 @@
+ [build-system]
+ requires = ["setuptools>=64", "wheel"]
+ build-backend = "setuptools.build_meta"
+
+ [project]
+ name = "ticketdesk"
+ version = "0.0.0"
+ description = "Desktop Qt app (PySide6) to track tickets locally with SQLite."
+ readme = "readme.md"
+ license = { file = "LICENSE" }
+ requires-python = ">=3.11"
+ dependencies = []

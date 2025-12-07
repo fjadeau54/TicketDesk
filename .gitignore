@@ -1,0 +1,23 @@
+__pycache__/
+*.pyc
+
+# Environnements virtuels
+venv/
+.venv/
+
+# Builds / artefacts
+build/
+dist/
+*.spec
+
+# Données et logs locales
+data/
+ticket_app/logs/
+
+# IDE / éditeurs
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
