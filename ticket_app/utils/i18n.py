@@ -11,7 +11,7 @@ _current = "fr"
 
 # Keys map to translated strings. French is the source of truth.
 _T = {
-    "app.title": {"fr": "Ticket Manager", "en": "Ticket Manager"},
+    "app.title": {"fr": "orgamate", "en": "orgamate"},
     "menu.new_ticket": {"fr": "Nouveau ticket", "en": "New ticket"},
     "menu.edit": {"fr": "Modifier", "en": "Edit"},
     "menu.delete": {"fr": "Supprimer", "en": "Delete"},
@@ -129,6 +129,10 @@ _T = {
     "kanban.no_tickets": {"fr": "Aucun ticket", "en": "No tickets"},
     "kanban.column.empty": {"fr": "Aucun ticket ici", "en": "No tickets here"},
     "palette.action.kanban": {"fr": "Ouvrir la vue Kanban", "en": "Open Kanban view"},
+    "dlg.select_ticket": {"fr": "Sélectionne un ticket.", "en": "Select a ticket."},
+    "dlg.confirmation": {"fr": "Confirmation", "en": "Confirmation"},
+    "dlg.db.title": {"fr": "Base de données", "en": "Database"},
+    "dlg.db.question": {"fr": "Voulez-vous exporter la base ?\n\nCliquez Non pour importer.", "en": "Do you want to export the database?\n\nClick No to import."},
     "theme.dialog.title": {"fr": "Thème", "en": "Theme"},
     "theme.name": {"fr": "Nom", "en": "Name"},
     "theme.color": {"fr": "Couleur", "en": "Color"},

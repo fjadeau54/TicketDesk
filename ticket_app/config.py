@@ -1,7 +1,7 @@
 import sys
 from pathlib import Path
 
-APP_NAME = "Ticket Manager"
+APP_NAME = "orgamate"
 
 # Répertoire où les fichiers de l'app sont situés (code/ressources)
 RUNTIME_BASE = Path(getattr(sys, "_MEIPASS", Path(__file__).resolve().parent))

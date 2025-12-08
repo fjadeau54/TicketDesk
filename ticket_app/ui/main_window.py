@@ -1,7 +1,7 @@
 from PySide6.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QToolBar,
     QTableView, QSplitter, QTabWidget, QMessageBox, QCheckBox,
-    QLineEdit, QComboBox, QHBoxLayout, QLabel, QFileDialog, QAbstractItemView, QApplication
+    QLineEdit, QComboBox, QHBoxLayout, QLabel, QFileDialog, QAbstractItemView, QApplication, QMenu
 )
 from PySide6.QtGui import QAction, QShortcut, QKeySequence
 from PySide6.QtCore import Qt, QTimer
@@ -97,6 +97,8 @@ class MainWindow(QMainWindow):
         self.table_view.selectionModel().selectionChanged.connect(
             self._update_archive_action_label
         )
+        self.table_view.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self.table_view.customContextMenuRequested.connect(self._show_table_context_menu)
         splitter.addWidget(self.table_view)
 
         # Onglets : Notes / Post-it
@@ -256,7 +258,7 @@ class MainWindow(QMainWindow):
     def _toggle_archive(self):
         ticket = self._get_selected_ticket()
         if not ticket:
-            QMessageBox.information(self, "Info", "Sélectionne un ticket.")
+            QMessageBox.information(self, "Info", tr("dlg.select_ticket"))
             return
         if ticket.id is None:
             return
@@ -277,7 +279,7 @@ class MainWindow(QMainWindow):
             return
         reply = QMessageBox.question(
             self,
-            "Confirmation",
+            tr("dlg.confirmation"),
             tr("dlg.confirm.delete_ticket", id=ticket.id),
         )
         if reply == QMessageBox.StandardButton.Yes:
@@ -393,8 +395,8 @@ class MainWindow(QMainWindow):
         menu = QTabWidget()  # placeholder to silence lints (unused), not shown
         action = QMessageBox.question(
             self,
-            "Base de données",
-            "Voulez-vous exporter la base ?\n\nCliquez Non pour importer.",
+            tr("dlg.db.title"),
+            tr("dlg.db.question"),
             QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No | QMessageBox.StandardButton.Cancel,
             QMessageBox.StandardButton.Yes
         )
@@ -404,6 +406,20 @@ class MainWindow(QMainWindow):
             self._export_db()
         else:
             self._import_db()
+
+    def _show_table_context_menu(self, pos):
+        index = self.table_view.indexAt(pos)
+        if not index.isValid():
+            return
+        # Align selection with the row that was right-clicked
+        self.table_view.selectRow(index.row())
+        ticket = self._get_selected_ticket()
+        menu = QMenu(self)
+        # Reuse existing actions so shortcuts/tooltips stay consistent
+        for action in (self.actions_map["edit"], self.actions_map["delete"], self.act_archive):
+            action.setEnabled(ticket is not None)
+            menu.addAction(action)
+        menu.exec(self.table_view.viewport().mapToGlobal(pos))
 
     def _export_db(self):
         path, _ = QFileDialog.getSaveFileName(

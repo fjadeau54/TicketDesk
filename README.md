@@ -1,4 +1,4 @@
-# TicketDesk
+# orgamate
 
 Desktop Qt app (PySide6) to track tickets locally with a SQLite database. Runs offline, no server required.
 
@@ -24,8 +24,8 @@ python -m ticket_app
 
 ## Packaging (PyInstaller)
 - Include assets:
-  - Linux: `pyinstaller --noconsole --onefile --name ticket-manager --add-data "ticket_app/assets:ticket_app/assets" ticket_app/main.py`
-  - Windows: `pyinstaller --noconsole --onefile --name ticket-manager --add-data "ticket_app/assets;ticket_app/assets" ticket_app\\main.py`
+  - Linux: `pyinstaller --noconsole --onefile --name orgamate --add-data "ticket_app/assets:ticket_app/assets" ticket_app/main.py`
+  - Windows: `pyinstaller --noconsole --onefile --name orgamate --add-data "ticket_app/assets;ticket_app/assets" ticket_app\\main.py`
 - Data/logs live in `~/.ticket_app` (Linux) or `%USERPROFILE%\.ticket_app` (Windows) when packaged.
 
 ## Notes
