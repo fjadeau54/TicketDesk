@@ -241,6 +241,7 @@ class SettingsDialog(QDialog):
         theme = self._selected_theme()
         if not theme:
             return
+        old_name = theme.name
         dlg = ThemeEditDialog(self, theme=theme)
         if dlg.exec():
             data = dlg.get_data()
@@ -251,7 +252,7 @@ class SettingsDialog(QDialog):
             theme.color = data["color"]
             theme.x = data["x"]; theme.y = data["y"]
             theme.width = data["width"]; theme.height = data["height"]
-            theme_service.update(theme)
+            theme_service.update(theme, old_name=old_name)
             self._load_themes()
 
     def _delete_theme(self):

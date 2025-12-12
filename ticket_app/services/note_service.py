@@ -7,7 +7,6 @@ class NoteService:
         return note.content if note else ""
 
     def save_content(self, content: str) -> None:
-        # simple stratégie : chaque sauvegarde crée une nouvelle entrée
-        note_repository.save_new(content)
+        note_repository.save_latest(content)
 
 note_service = NoteService()

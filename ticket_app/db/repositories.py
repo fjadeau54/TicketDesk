@@ -96,11 +96,22 @@ class NoteRepository:
         return Note(id=row["id"], content=row["content"], created_at=row["created_at"])
 
     def save_new(self, content: str) -> int:
+        # Deprecated: kept for backward compatibility.
+        return self.save_latest(content)
+
+    def save_latest(self, content: str) -> int:
         conn = get_connection()
         cur = conn.cursor()
-        cur.execute("INSERT INTO notes (content) VALUES (?)", (content,))
+        cur.execute("DELETE FROM notes WHERE id != 1")
+        cur.execute("""
+            INSERT INTO notes (id, content, created_at)
+            VALUES (1, ?, CURRENT_TIMESTAMP)
+            ON CONFLICT(id) DO UPDATE
+            SET content = excluded.content,
+                created_at = CURRENT_TIMESTAMP
+        """, (content,))
         conn.commit()
-        note_id = cur.lastrowid
+        note_id = cur.lastrowid or 1
         conn.close()
         return note_id
 
@@ -225,6 +236,13 @@ class ThemeRepository:
             SET name = ?, color = ?, x = ?, y = ?, width = ?, height = ?
             WHERE id = ?
         """, (theme.name, theme.color, theme.x, theme.y, theme.width, theme.height, theme.id))
+        conn.commit()
+        conn.close()
+
+    def rename_in_tickets(self, old_name: str, new_name: str) -> None:
+        conn = get_connection()
+        cur = conn.cursor()
+        cur.execute("UPDATE tickets SET theme = ? WHERE theme = ?", (new_name, old_name))
         conn.commit()
         conn.close()
 

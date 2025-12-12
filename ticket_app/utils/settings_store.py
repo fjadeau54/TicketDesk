@@ -1,3 +1,4 @@
+import copy
 import json
 from pathlib import Path
 from ..config import DATA_DIR
@@ -29,18 +30,31 @@ DEFAULT_SETTINGS = {
 }
 
 
+def _deep_merge(base: dict, override: dict | None) -> dict:
+    """
+    Merge two dicts without mutating inputs.
+    Nested dicts are merged recursively, other values are replaced.
+    """
+    result = copy.deepcopy(base)
+    if not override:
+        return result
+    for key, val in override.items():
+        if isinstance(val, dict) and isinstance(result.get(key), dict):
+            result[key] = _deep_merge(result[key], val)
+        else:
+            result[key] = copy.deepcopy(val)
+    return result
+
+
 def load_settings() -> dict:
     if not SETTINGS_PATH.exists():
-        return DEFAULT_SETTINGS.copy()
+        return copy.deepcopy(DEFAULT_SETTINGS)
     try:
         with open(SETTINGS_PATH, "r", encoding="utf-8") as f:
             data = json.load(f)
     except Exception:
         data = {}
-    merged = DEFAULT_SETTINGS.copy()
-    merged.update(data)
-    merged.setdefault("alerts", {}).update(data.get("alerts", {}))
-    return merged
+    return _deep_merge(DEFAULT_SETTINGS, data)
 
 
 def save_settings(data: dict):

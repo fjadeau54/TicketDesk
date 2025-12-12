@@ -33,8 +33,10 @@ class ThemeService:
         self.refresh_cache()
         return t
 
-    def update(self, theme: Theme) -> None:
+    def update(self, theme: Theme, old_name: str | None = None) -> None:
         theme_repository.update(theme)
+        if old_name and old_name != theme.name:
+            theme_repository.rename_in_tickets(old_name, theme.name)
         self.refresh_cache()
 
     def delete(self, theme_id: int) -> None:
